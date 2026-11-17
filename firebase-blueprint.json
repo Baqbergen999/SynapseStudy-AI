@@ -1,0 +1,261 @@
+{
+  "entities": {
+    "UserProfile": {
+      "title": "UserProfile",
+      "description": "Authenticated student profile linked to Google Account.",
+      "type": "object",
+      "properties": {
+        "uid": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$"
+        },
+        "displayName": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 160
+        },
+        "email": {
+          "type": "string",
+          "format": "email",
+          "minLength": 3,
+          "maxLength": 254
+        },
+        "photoURL": {
+          "type": "string",
+          "maxLength": 1024
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "required": ["uid", "displayName", "email", "updatedAt"]
+    },
+    "LectureNote": {
+      "title": "LectureNote",
+      "description": "AI-generated structured lecture note, transcript, practical tasks, and flashcards owned by a user.",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$"
+        },
+        "ownerId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$"
+        },
+        "title": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 300
+        },
+        "subject": {
+          "type": "string",
+          "enum": [
+            "Programming",
+            "Math",
+            "Physics",
+            "Chemistry",
+            "Biology",
+            "Medicine",
+            "DataScience",
+            "Engineering",
+            "Economics",
+            "Business",
+            "Law",
+            "History",
+            "Humanities",
+            "Languages",
+            "Psychology",
+            "Design"
+          ]
+        },
+        "durationMinutes": {
+          "type": "number"
+        },
+        "createdAt": {
+          "type": "string",
+          "maxLength": 40
+        },
+        "language": {
+          "type": "string",
+          "enum": ["kk", "ru", "en"]
+        },
+        "depth": {
+          "type": "string",
+          "enum": ["concise", "deep", "exam"]
+        },
+        "engine": {
+          "type": "string",
+          "enum": ["gemini"]
+        },
+        "rawTranscript": {
+          "type": "string",
+          "maxLength": 100000
+        },
+        "executiveSummary": {
+          "type": "string",
+          "maxLength": 10000
+        },
+        "keyTakeaways": {
+          "type": "array"
+        },
+        "sections": {
+          "type": "array"
+        },
+        "practiceQuestions": {
+          "type": "array"
+        },
+        "flashcards": {
+          "type": "array"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "ownerId",
+        "title",
+        "subject",
+        "durationMinutes",
+        "createdAt",
+        "language",
+        "depth",
+        "engine",
+        "rawTranscript",
+        "executiveSummary",
+        "keyTakeaways",
+        "sections",
+        "practiceQuestions",
+        "flashcards",
+        "updatedAt"
+      ]
+    },
+    "ProjectPlan": {
+      "title": "ProjectPlan",
+      "description": "Time-boxed project execution roadmap owned by a user.",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$"
+        },
+        "ownerId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$"
+        },
+        "title": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 300
+        },
+        "description": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 10000
+        },
+        "subject": {
+          "type": "string",
+          "enum": [
+            "Programming",
+            "Math",
+            "Physics",
+            "Chemistry",
+            "Biology",
+            "Medicine",
+            "DataScience",
+            "Engineering",
+            "Economics",
+            "Business",
+            "Law",
+            "History",
+            "Humanities",
+            "Languages",
+            "Psychology",
+            "Design"
+          ]
+        },
+        "deadlineDays": {
+          "type": "number"
+        },
+        "dailyHours": {
+          "type": "number"
+        },
+        "startTimeWindow": {
+          "type": "string",
+          "maxLength": 10
+        },
+        "endTimeWindow": {
+          "type": "string",
+          "maxLength": 10
+        },
+        "goalMode": {
+          "type": "string",
+          "enum": ["finish", "deep_learning"]
+        },
+        "language": {
+          "type": "string",
+          "enum": ["kk", "ru", "en"]
+        },
+        "engine": {
+          "type": "string",
+          "enum": ["gemini"]
+        },
+        "createdAt": {
+          "type": "string",
+          "maxLength": 40
+        },
+        "days": {
+          "type": "array"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "ownerId",
+        "title",
+        "description",
+        "subject",
+        "deadlineDays",
+        "dailyHours",
+        "startTimeWindow",
+        "endTimeWindow",
+        "goalMode",
+        "language",
+        "engine",
+        "createdAt",
+        "days",
+        "updatedAt"
+      ]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": { "$ref": "#/entities/UserProfile" },
+      "description": "Private authenticated student profile document."
+    },
+    "/users/{userId}/notes/{noteId}": {
+      "schema": { "$ref": "#/entities/LectureNote" },
+      "description": "Per-user AI study notes, raw transcripts, practical tasks, and flashcards."
+    },
+    "/users/{userId}/projects/{projectId}": {
+      "schema": { "$ref": "#/entities/ProjectPlan" },
+      "description": "Per-user time-boxed project execution roadmaps."
+    }
+  }
+}

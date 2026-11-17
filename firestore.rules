@@ -1,0 +1,172 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() >= 1 && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    function isSignedIn() {
+      return request.auth != null && request.auth.token.email_verified == true;
+    }
+
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    function isValidSubject(subject) {
+      return subject in [
+        'Programming', 'Math', 'Physics', 'Chemistry', 'Biology', 'Medicine',
+        'DataScience', 'Engineering', 'Economics', 'Business', 'Law', 'History',
+        'Humanities', 'Languages', 'Psychology', 'Design'
+      ];
+    }
+
+    function isValidLanguage(lang) {
+      return lang in ['kk', 'ru', 'en'];
+    }
+
+    function isValidDepth(depth) {
+      return depth in ['concise', 'deep', 'exam'];
+    }
+
+    function isValidGoalMode(mode) {
+      return mode in ['finish', 'deep_learning'];
+    }
+
+    function isValidUserProfile(data, userId) {
+      return data.keys().hasAll(['uid', 'displayName', 'email', 'updatedAt'])
+        && data.keys().hasOnly(['uid', 'displayName', 'email', 'photoURL', 'updatedAt'])
+        && data.uid is string && data.uid == userId && isValidId(data.uid)
+        && data.displayName is string && data.displayName.size() >= 1 && data.displayName.size() <= 160
+        && data.email is string && data.email.size() >= 3 && data.email.size() <= 254
+        && (!('photoURL' in data) || (data.photoURL is string && data.photoURL.size() <= 1024))
+        && data.updatedAt is timestamp && data.updatedAt == request.time;
+    }
+
+    function isValidLectureNote(data, userId, noteId) {
+      return data.keys().hasAll([
+          'id', 'ownerId', 'title', 'subject', 'durationMinutes', 'createdAt',
+          'language', 'depth', 'engine', 'rawTranscript', 'executiveSummary',
+          'keyTakeaways', 'sections', 'practiceQuestions', 'flashcards', 'updatedAt'
+        ])
+        && data.keys().hasOnly([
+          'id', 'ownerId', 'title', 'subject', 'durationMinutes', 'createdAt',
+          'language', 'depth', 'engine', 'rawTranscript', 'executiveSummary',
+          'keyTakeaways', 'sections', 'practiceQuestions', 'flashcards', 'updatedAt'
+        ])
+        && isValidId(data.id) && data.id == noteId
+        && isValidId(data.ownerId) && data.ownerId == userId && data.ownerId == request.auth.uid
+        && data.title is string && data.title.size() >= 1 && data.title.size() <= 300
+        && isValidSubject(data.subject)
+        && data.durationMinutes is number && data.durationMinutes >= 0 && data.durationMinutes <= 10000
+        && data.createdAt is string && data.createdAt.size() >= 4 && data.createdAt.size() <= 40
+        && isValidLanguage(data.language)
+        && isValidDepth(data.depth)
+        && data.engine == 'gemini'
+        && data.rawTranscript is string && data.rawTranscript.size() <= 100000
+        && data.executiveSummary is string && data.executiveSummary.size() <= 10000
+        && data.keyTakeaways is list && data.keyTakeaways.size() <= 30
+        && (data.keyTakeaways.size() == 0 || data.keyTakeaways[0] is string)
+        && data.sections is list && data.sections.size() <= 30
+        && (data.sections.size() == 0 || data.sections[0] is map)
+        && data.practiceQuestions is list && data.practiceQuestions.size() <= 30
+        && (data.practiceQuestions.size() == 0 || data.practiceQuestions[0] is map)
+        && data.flashcards is list && data.flashcards.size() <= 50
+        && (data.flashcards.size() == 0 || data.flashcards[0] is map)
+        && data.updatedAt is timestamp && data.updatedAt == request.time;
+    }
+
+    function isValidProjectPlan(data, userId, projectId) {
+      return data.keys().hasAll([
+          'id', 'ownerId', 'title', 'description', 'subject', 'deadlineDays',
+          'dailyHours', 'startTimeWindow', 'endTimeWindow', 'goalMode',
+          'language', 'engine', 'createdAt', 'days', 'updatedAt'
+        ])
+        && data.keys().hasOnly([
+          'id', 'ownerId', 'title', 'description', 'subject', 'deadlineDays',
+          'dailyHours', 'startTimeWindow', 'endTimeWindow', 'goalMode',
+          'language', 'engine', 'createdAt', 'days', 'updatedAt'
+        ])
+        && isValidId(data.id) && data.id == projectId
+        && isValidId(data.ownerId) && data.ownerId == userId && data.ownerId == request.auth.uid
+        && data.title is string && data.title.size() >= 1 && data.title.size() <= 300
+        && data.description is string && data.description.size() >= 1 && data.description.size() <= 10000
+        && isValidSubject(data.subject)
+        && data.deadlineDays is number && data.deadlineDays >= 1 && data.deadlineDays <= 31
+        && data.dailyHours is number && data.dailyHours >= 0.5 && data.dailyHours <= 24
+        && data.startTimeWindow is string && data.startTimeWindow.size() >= 4 && data.startTimeWindow.size() <= 10
+        && data.endTimeWindow is string && data.endTimeWindow.size() >= 4 && data.endTimeWindow.size() <= 10
+        && isValidGoalMode(data.goalMode)
+        && isValidLanguage(data.language)
+        && data.engine == 'gemini'
+        && data.createdAt is string && data.createdAt.size() >= 4 && data.createdAt.size() <= 40
+        && data.days is list && data.days.size() <= 31
+        && (data.days.size() == 0 || data.days[0] is map)
+        && data.updatedAt is timestamp && data.updatedAt == request.time;
+    }
+
+    match /users/{userId} {
+      allow get: if isValidId(userId) && isOwner(userId);
+      allow list: if false;
+      allow create: if isValidId(userId) && isOwner(userId)
+        && isValidUserProfile(incoming(), userId);
+      allow update: if isValidId(userId) && isOwner(userId)
+        && isValidUserProfile(incoming(), userId)
+        && incoming().uid == existing().uid
+        && incoming().diff(existing()).affectedKeys().hasOnly(['displayName', 'email', 'photoURL', 'updatedAt']);
+      allow delete: if isValidId(userId) && isOwner(userId);
+
+      match /notes/{noteId} {
+        allow get: if isValidId(userId) && isValidId(noteId) && isOwner(userId);
+        allow list: if isValidId(userId) && isOwner(userId)
+          && resource.data.ownerId == request.auth.uid;
+        allow create: if isValidId(userId) && isValidId(noteId) && isOwner(userId)
+          && exists(/databases/$(database)/documents/users/$(userId))
+          && isValidLectureNote(incoming(), userId, noteId);
+        allow update: if isValidId(userId) && isValidId(noteId) && isOwner(userId)
+          && isValidLectureNote(incoming(), userId, noteId)
+          && incoming().id == existing().id
+          && incoming().ownerId == existing().ownerId
+          && incoming().createdAt == existing().createdAt
+          && incoming().diff(existing()).affectedKeys().hasOnly([
+            'title', 'subject', 'durationMinutes', 'language', 'depth',
+            'rawTranscript', 'executiveSummary', 'keyTakeaways', 'sections',
+            'practiceQuestions', 'flashcards', 'updatedAt'
+          ]);
+        allow delete: if isValidId(userId) && isValidId(noteId) && isOwner(userId);
+      }
+
+      match /projects/{projectId} {
+        allow get: if isValidId(userId) && isValidId(projectId) && isOwner(userId);
+        allow list: if isValidId(userId) && isOwner(userId)
+          && resource.data.ownerId == request.auth.uid;
+        allow create: if isValidId(userId) && isValidId(projectId) && isOwner(userId)
+          && exists(/databases/$(database)/documents/users/$(userId))
+          && isValidProjectPlan(incoming(), userId, projectId);
+        allow update: if isValidId(userId) && isValidId(projectId) && isOwner(userId)
+          && isValidProjectPlan(incoming(), userId, projectId)
+          && incoming().id == existing().id
+          && incoming().ownerId == existing().ownerId
+          && incoming().createdAt == existing().createdAt
+          && incoming().diff(existing()).affectedKeys().hasOnly([
+            'title', 'description', 'subject', 'deadlineDays', 'dailyHours',
+            'startTimeWindow', 'endTimeWindow', 'goalMode', 'language',
+            'days', 'updatedAt'
+          ]);
+        allow delete: if isValidId(userId) && isValidId(projectId) && isOwner(userId);
+      }
+    }
+  }
+}
