@@ -73,6 +73,7 @@ interface StudyContextValue {
   setLanguage: (lang: Language) => void;
   t: Translations;
   hasServerKey: boolean;
+  serverReachable: boolean;
   defaultDepth: NotesDepth;
   setDefaultDepth: (depth: NotesDepth) => void;
   settingsOpen: boolean;
@@ -129,6 +130,7 @@ export function StudyProvider({ children }: { children: React.ReactNode }) {
     return saved === 'concise' || saved === 'deep' || saved === 'exam' ? saved : 'deep';
   });
   const [hasServerKey, setHasServerKey] = useState(false);
+  const [serverReachable, setServerReachable] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
 
   const [notes, setNotes] = useState<LectureNote[]>([]);
@@ -231,13 +233,25 @@ export function StudyProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     fetch('/api/ai/status')
-      .then((res) => (res.ok ? res.json() : null))
+      .then(async (res) => {
+        if (!res.ok) return null;
+        const text = await res.text();
+        if (text.trim().startsWith('<')) return null;
+        return JSON.parse(text) as { hasServerKey?: boolean };
+      })
       .then((data) => {
         if (data && typeof data.hasServerKey === 'boolean') {
+          setServerReachable(true);
           setHasServerKey(data.hasServerKey);
+        } else {
+          setServerReachable(false);
+          setHasServerKey(false);
         }
       })
-      .catch(() => setHasServerKey(false));
+      .catch(() => {
+        setServerReachable(false);
+        setHasServerKey(false);
+      });
   }, []);
 
   // Persist user-scoped workspace data synchronously to localStorage
@@ -495,6 +509,7 @@ export function StudyProvider({ children }: { children: React.ReactNode }) {
         setLanguage,
         t: TRANSLATIONS[language],
         hasServerKey,
+        serverReachable,
         defaultDepth,
         setDefaultDepth,
         settingsOpen,

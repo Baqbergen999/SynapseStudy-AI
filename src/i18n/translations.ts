@@ -187,6 +187,8 @@ export interface Translations {
     engineStatusLabel: string;
     serverKeyAvailable: string;
     serverKeyMissing: string;
+    serverUnreachable: string;
+    deployHint: string;
     outputLanguageLabel: string;
     defaultDepthLabel: string;
     closeBtn: string;
@@ -414,7 +416,10 @@ export const TRANSLATIONS: Record<Language, Translations> = {
       subtitle: 'Серверлік Gemini AI күйін және әдепкі оқу тілін баптаңыз.',
       engineStatusLabel: 'Серверлік API күйі',
       serverKeyAvailable: 'GEMINI_API_KEY серверде белсенді',
-      serverKeyMissing: 'Серверде GEMINI_API_KEY бапталмаған (Settings > Secrets)',
+      serverKeyMissing: 'Серверде GEMINI_API_KEY бапталмаған',
+      serverUnreachable: 'Серверлік /api/* функциясы жауап бермеді',
+      deployHint:
+        'Netlify деплойында GEMINI_API_KEY өшпеуі үшін: Netlify → Site configuration → Environment variables ішіне GEMINI_API_KEY қосып, қайта деплой жасаңыз (AI Studio-да: Settings > Secrets).',
       outputLanguageLabel: 'ИИ мазмұнының негізгі тілі',
       defaultDepthLabel: 'Әдепкі конспект тереңдігі',
       closeBtn: 'Сақтау және жабу',
@@ -640,7 +645,10 @@ export const TRANSLATIONS: Record<Language, Translations> = {
       subtitle: 'Состояние серверного Gemini API и язык учебных материалов по умолчанию.',
       engineStatusLabel: 'Статус серверного API',
       serverKeyAvailable: 'GEMINI_API_KEY активен на сервере',
-      serverKeyMissing: 'GEMINI_API_KEY не задан в Settings > Secrets',
+      serverKeyMissing: 'GEMINI_API_KEY не задан на сервере',
+      serverUnreachable: 'Серверный маршрут /api/* недоступен',
+      deployHint:
+        'Чтобы ключ сохранялся при деплое на Netlify: добавьте GEMINI_API_KEY в Netlify → Site configuration → Environment variables и перезапустите деплой (в AI Studio: Settings > Secrets).',
       outputLanguageLabel: 'Основной язык ИИ-контента',
       defaultDepthLabel: 'Глубина конспекта по умолчанию',
       closeBtn: 'Сохранить и закрыть',
@@ -865,7 +873,10 @@ export const TRANSLATIONS: Record<Language, Translations> = {
       subtitle: 'Inspect server-side Gemini API availability and configure default output language.',
       engineStatusLabel: 'Server API Key Status',
       serverKeyAvailable: 'GEMINI_API_KEY active on server',
-      serverKeyMissing: 'GEMINI_API_KEY not configured in Settings > Secrets',
+      serverKeyMissing: 'GEMINI_API_KEY not configured on server',
+      serverUnreachable: 'Serverless /api/* endpoint unreachable',
+      deployHint:
+        'To keep your key active across Netlify deploys: add GEMINI_API_KEY under Netlify → Site configuration → Environment variables and trigger a redeploy (in AI Studio: Settings > Secrets).',
       outputLanguageLabel: 'Default AI Output Language',
       defaultDepthLabel: 'Default Notes Depth',
       closeBtn: 'Save & Close',

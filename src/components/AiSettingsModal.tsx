@@ -7,6 +7,7 @@ export function AiSettingsModal() {
     settingsOpen,
     setSettingsOpen,
     hasServerKey,
+    serverReachable,
     language,
     setLanguage,
     defaultDepth,
@@ -55,7 +56,7 @@ export function AiSettingsModal() {
 
         <div className="p-6 space-y-6">
           {/* Server Environment Status */}
-          <div className="rounded-xl border border-white/10 bg-[#18181D] p-4">
+          <div className="rounded-xl border border-white/10 bg-[#18181D] p-4 space-y-2">
             <div className="flex items-center justify-between gap-3">
               <div className="flex items-center gap-2.5">
                 <Cpu className="h-4 w-4 text-indigo-400 shrink-0" />
@@ -68,13 +69,22 @@ export function AiSettingsModal() {
                   hasServerKey ? 'text-emerald-400' : 'text-amber-300'
                 }`}
               >
-                {hasServerKey ? t.settings.serverKeyAvailable : t.settings.serverKeyMissing}
+                {hasServerKey
+                  ? t.settings.serverKeyAvailable
+                  : serverReachable
+                    ? t.settings.serverKeyMissing
+                    : t.settings.serverUnreachable}
               </span>
             </div>
-            <p className="text-xs text-zinc-400 mt-2 leading-relaxed">
+            <p className="text-xs text-zinc-400 leading-relaxed">
               Transcription: <span className="font-mono text-zinc-200">gemini-3.5-transcribe</span> ·
               Notes & Planner: <span className="font-mono text-zinc-200">gemini-2.5-flash</span>
             </p>
+            {!hasServerKey && (
+              <p className="text-xs text-amber-200/90 bg-amber-500/10 border border-amber-500/20 rounded-lg px-3 py-2 leading-relaxed">
+                {t.settings.deployHint}
+              </p>
+            )}
           </div>
 
           {/* Default Language */}
